@@ -32,8 +32,8 @@ You now have a **gitrack_installation** folder leveled with the gittrack
 
 ```
 <parent-folder>
-				|__gitrack
-				|__gitrack_installation
+	       |__gitrack
+	       |__gitrack_installation
 ```
 
 ## Using it
