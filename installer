@@ -1,0 +1,68 @@
+#!/bin/bash
+set -e
+
+if [ "$SUDO_COMMAND" == "" ]
+then
+	echo "This script has to be executed as sudo"
+	exit 1
+fi
+
+CURRENT_FOLDER=`pwd`
+
+get_prev_folder () {
+	cd ..
+	echo `pwd`
+	cd - > /dev/null
+}
+
+UPPER_FOLDER=`get_prev_folder`
+INSTALL_FOLDER="$UPPER_FOLDER/gitrack_installation"
+COMP_FOLDER="$INSTALL_FOLDER/components/"
+LOGS_FOLDER="$INSTALL_FOLDER/logs"
+
+if test "$#" -eq 1 
+then
+	if [ "$1" == "-u" ] 
+	then
+		if [ -d "$INSTALL_FOLDER" ]
+		then
+			rm -fr $INSTALL_FOLDER
+		else	
+			echo "gitrack is not currently installed on this machine"
+		fi
+	else
+		echo "case not recognized"
+		echo "./installer [option] "
+		echo ""
+		echo "currently available options:"
+		echo "    -u    uninstall gitracker"
+	fi
+	exit 0
+fi
+
+
+if [ -d $INSTALL_FOLDER ]
+then
+	echo "install folder \"$INSTALL_FOLDER\" already exists"
+	echo "aborting installation"
+	exit 1
+fi
+
+
+mkdir $INSTALL_FOLDER
+
+cat ./run_update.sh | sed -e "s|INSTALL_PATH_FOLDER|${INSTALL_FOLDER}|g" > $INSTALL_FOLDER/run_update.sh
+mkdir $LOGS_FOLDER 
+mkdir $COMP_FOLDER
+cat orchestrate.C | sed -e "s|INSTALL_PATH_FOLDER|${INSTALL_FOLDER}|g" > $INSTALL_FOLDER/orchestrate.C  
+
+cd $INSTALL_FOLDER 
+g++ -o orchestrate orchestrate.C -std=c++11
+rm -fr orchestrate.C
+echo "mad https://github.com/franava/mad u" > ProjectList
+cd $CURRENT_FOLDER
+
+chown $SUDO_UID.$SUDO_GID $INSTALL_FOLDER -R 
+chmod 755 $INSTALL_FOLDER/run_update.sh
+
+
