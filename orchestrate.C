@@ -45,7 +45,7 @@ bool exists(const string& name)
     return (stat ( name.c_str(), &buffer) == 0 ) ;
 }
 
-void orchestrate(char tracking)
+bool orchestrate(char tracking)
 {
     ostringstream name ;
     name << "report_" << time_point_cast<days_type>(system_clock::now()).time_since_epoch().count() << ".log" ;
@@ -73,9 +73,11 @@ void orchestrate(char tracking)
         }
     }
 
-
     ifstream in(project_list.c_str()) ;
-
+    if(in.fail())
+    {
+        return false ;
+    }
     while (true)
     {
         string component, repo ;
@@ -94,7 +96,7 @@ void orchestrate(char tracking)
         string cmd = run_update + repo + " " + component + " " + fullname.str() + " " + mode;
         system(cmd.c_str()) ;
     }
-
+    return true ;
 }
 
 
@@ -130,7 +132,8 @@ int main( int argc, const char **argv )
         return 1 ;
     }
 
-    orchestrate(track) ;
+    if(!orchestrate(track))
+        return 1 ;
 
     return 0 ;
 }
