@@ -1,4 +1,4 @@
-# GITRACK
+# GiTrack
 
 ## What is GiTrack?
 
