@@ -33,7 +33,12 @@ then
 		echo "tracking all branches on repo"
 		git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
 	fi
-	git pull --all --tags 2>&1 | tee -a $LOG
+    for i in $(git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | cut -d '/' -f 2 ) ;
+    do
+        git checkout $i
+        git pull 
+    done
+    git checkout `git remote show origin | grep HEAD\ branch | tr -d ' ' | cut -d ':' -f 2`
 else
 	cd $COMP_FOLDER
 	print_repo_into_log $2 2>&1 | tee -a $LOG
